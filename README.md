@@ -6,6 +6,8 @@ aus Leitlinien und Fachliteratur prüft (Grundlage: `docs/evidenz-basis.md`).
 
 **Alle Daten bleiben auf dem Gerät.** Kein Backend, kein Netzwerkzugriff, keine Analytics.
 
+Live: https://ales876.github.io/toepfchen-app/ (auf dem Handy über „Zum Homescreen hinzufügen“ installierbar)
+
 ## Starten
 
 Ein statischer Server genügt – IndexedDB und Service Worker funktionieren nicht über `file://`:
