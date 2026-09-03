@@ -1,6 +1,6 @@
 // Offline-First: die App ist ein fester Satz Dateien, also Cache-First mit
 // Versions-Bump beim Deploy. Daten liegen in IndexedDB und werden hier nie angefasst.
-const CACHE = 'potty-quest-v10';
+const CACHE = 'potty-quest-v11';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/app.css',
@@ -26,6 +26,13 @@ self.addEventListener('activate', (e) => {
 // Versions-Bump verschlucken - inklusive korrigierter Regeltexte.
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== self.location.origin) return;
+  // Icons und Manifest immer vom Netz holen, sonst haelt ein Geraet das alte
+  // App-Symbol fest, auch wenn laengst ein neues deployt ist.
+  const path = new URL(e.request.url).pathname;
+  if (path.includes('/icons/') || path.endsWith('.webmanifest')) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
   e.respondWith(
     caches.open(CACHE).then(async (cache) => {
       const hit = await cache.match(e.request);
