@@ -1,10 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <rect width="192" height="192" rx="44" fill="#4dabf7"/>
-  <circle cx="96" cy="100" r="58" fill="#ffe066" stroke="#22223b" stroke-width="7"/>
-  <path d="M96 44 q-5 -20 11 -23 q-7 12 1 19" fill="#ffd43b" stroke="#22223b" stroke-width="7" stroke-linejoin="round"/>
-  <circle cx="76" cy="92" r="10" fill="#22223b"/><circle cx="116" cy="92" r="10" fill="#22223b"/>
-  <circle cx="80" cy="88" r="3.5" fill="#fff"/><circle cx="120" cy="88" r="3.5" fill="#fff"/>
-  <path d="M78 118 q18 -6 36 0 q-7 20 -18 20 q-11 0 -18 -20 Z" fill="#ff9f43" stroke="#22223b" stroke-width="6" stroke-linejoin="round"/>
-  <circle cx="54" cy="114" r="9" fill="#ff8787" opacity="0.6"/>
-  <circle cx="138" cy="114" r="9" fill="#ff8787" opacity="0.6"/>
+  <!-- Vollflaechiger Hintergrund: App-Icons werden von iOS und Android selbst
+       maskiert, eigene runde Ecken wuerden doppelt gerundet aussehen.
+       Das Motiv bleibt in der inneren Safe Zone (80 %), damit beim Maskieren
+       nichts abgeschnitten wird. -->
+  <rect x="0" y="0" width="192" height="192" fill="#4dabf7"/>
+  <circle cx="40" cy="44" r="7" fill="#ffffff" opacity="0.5"/>
+  <circle cx="156" cy="58" r="5" fill="#ffffff" opacity="0.4"/>
+  <path d="M96 50 q-7 -20 11 -23 q-8 12 2 20" fill="#ffd43b" stroke="#22223b" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="96" cy="106" r="54" fill="#ffe066" stroke="#22223b" stroke-width="7"/>
+  <circle cx="77" cy="98" r="10" fill="#22223b"/>
+  <circle cx="115" cy="98" r="10" fill="#22223b"/>
+  <circle cx="81" cy="94" r="3.6" fill="#ffffff"/>
+  <circle cx="119" cy="94" r="3.6" fill="#ffffff"/>
+  <path d="M76 122 q20 -6 40 0 q-8 18 -20 18 q-12 0 -20 -18 Z" fill="#ff9f43" stroke="#22223b" stroke-width="6" stroke-linejoin="round"/>
+  <ellipse cx="57" cy="120" rx="9" ry="6.5" fill="#ff8787" opacity="0.55"/>
+  <ellipse cx="135" cy="120" rx="9" ry="6.5" fill="#ff8787" opacity="0.55"/>
 </svg>
