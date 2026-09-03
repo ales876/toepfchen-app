@@ -1,3 +1,7 @@
 .DS_Store
 node_modules/
 *.log
+
+# Echte Trackerdaten gehören nicht in ein öffentliches Repo
+*daten*.json
+_tmp-*.json
