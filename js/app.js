@@ -74,8 +74,11 @@ async function saveEvent() {
     return;
   }
   const tsInput = el('ev-time').value;
+  // Ein vertipptes Datum in der Zukunft wuerde Serie und Quote still verfaelschen.
+  const wanted = tsInput ? new Date(tsInput).getTime() : Date.now();
+  const inFuture = wanted > Date.now() + 60000;
   const ev = {
-    ts: tsInput ? new Date(tsInput).getTime() : Date.now(),
+    ts: inFuture ? Date.now() : wanted,
     what: state.draft.what || 'pee',
     where: state.draft.where,
     initiative: state.draft.initiative || (WHERE[state.draft.where].success ? 'onPrompt' : 'none'),
@@ -86,6 +89,12 @@ async function saveEvent() {
   state.lastSaved = saved;
   resetDraft();
   await refresh();
+
+  if (inFuture) {
+    setMascot('idle');
+    flash('Zeitpunkt lag in der Zukunft – auf jetzt gesetzt.', 'Rückgängig');
+    return;
+  }
 
   if (isSuccess(saved)) {
     setMascot('cheer');
@@ -209,11 +218,19 @@ function renderTips() {
   }
   if (!state.tips.length) {
     const days = state.computed.features['tracking.daysWithData'];
+    // Kleinste Datenanforderung aller Muster-Regeln - damit der leere Zustand
+    // sagt, wann es losgeht, statt nur "nichts da".
+    const firstThreshold = Math.min(
+      ...RULESET.rules
+        .filter((r) => r.category !== 'red_flag' && r.requires?.minTrackedDays)
+        .map((r) => r.requires.minTrackedDays)
+    );
+    const missing = firstThreshold - days;
     list.innerHTML = `<div class="card center">${mascot('idle', 96)}
       <h2>Noch keine Muster</h2>
       <p class="hint">${
-        days < (RULESET.config.minTrackedDays || 5)
-          ? `In den ersten Tagen wird nur erfasst – aus ${days} Tag(en) lässt sich kein Muster ablesen, und geratene Tipps helfen niemandem.`
+        missing > 0
+          ? `${days} Tag(e) erfasst. Die ersten Muster-Regeln greifen ab ${firstThreshold} Tagen – noch ${missing} Tag(e). Aus weniger Daten geratene Tipps helfen niemandem.`
           : 'Die Daten zeigen gerade nichts Auffälliges. Das ist eine gute Nachricht.'
       }</p></div>`;
     return;
@@ -354,6 +371,33 @@ el('export-json').addEventListener('click', () =>
   download(`potty-quest-backup-${dayKey(Date.now())}.json`, toJSON(state.events, state.settings), 'application/json')
 );
 el('import-btn').addEventListener('click', () => el('import-file').click());
+el('import-json-btn').addEventListener('click', () => el('import-json-file').click());
+
+// Eigener Weg fuer JSON: Backups der App und uebertragene Bestandsdaten.
+// Ereignisse behalten ihre id, ein zweiter Import legt also keine Dubletten an.
+el('import-json-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const list = Array.isArray(data) ? data : data.events;
+    if (!Array.isArray(list)) throw new Error('keine Ereignisse gefunden');
+    const cutoff = Date.now() + 60000;
+    const valid = list.filter((ev) => Number.isFinite(ev?.ts) && ev.ts <= cutoff && WHERE[ev.where] && WHAT[ev.what]);
+    const dropped = list.length - valid.length;
+    await db.putEvents(valid);
+    if (data.settings) {
+      state.settings = { ...state.settings, ...data.settings };
+      await db.setMeta('settings', state.settings);
+      fillSettings();
+    }
+    await refresh();
+    flash(`${valid.length} Ereignisse importiert${dropped ? `, ${dropped} übersprungen` : ''}.`);
+  } catch (err) {
+    flash('Datei konnte nicht gelesen werden.');
+  }
+});
 
 el('import-file').addEventListener('change', async (e) => {
   const file = e.target.files[0];
@@ -470,9 +514,10 @@ el('demo-btn').addEventListener('click', async () => {
     if (d % 3 === 0) list.push(mk(d, 2, 15, 'pee', 'bed', 'none', { duringSleep: true }));
     if (d % 5 === 0) list.push(mk(d, 9, 25, 'pee', 'floor', 'none', { note: 'kurz nach dem Trinken' }));
   }
-  await db.putEvents(list);
+  const past = list.filter((e) => e.ts <= Date.now());
+  await db.putEvents(past);
   await refresh();
-  flash(`${list.length} Beispiel-Ereignisse angelegt.`);
+  flash(`${past.length} Beispiel-Ereignisse angelegt.`);
 });
 
 // --------------------------------------------------------------- Start

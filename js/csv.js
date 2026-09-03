@@ -119,6 +119,7 @@ export function rowsToEvents(rows, map) {
   rows.forEach((r, idx) => {
     const ts = parseTimestamp(r[map.ts], map.time !== undefined ? r[map.time] : '');
     if (!ts) { skipped.push({ line: idx + 2, reason: 'Zeitpunkt nicht lesbar' }); return; }
+    if (ts > Date.now() + 60000) { skipped.push({ line: idx + 2, reason: 'Zeitpunkt liegt in der Zukunft' }); return; }
     const sleepRaw = map.duringSleep !== undefined ? (r[map.duringSleep] || '').toLowerCase() : '';
     const where = normalizeValue(r[map.where], 'where', 'potty');
     events.push({

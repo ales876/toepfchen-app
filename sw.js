@@ -1,6 +1,6 @@
 // Offline-First: die App ist ein fester Satz Dateien, also Cache-First mit
 // Versions-Bump beim Deploy. Daten liegen in IndexedDB und werden hier nie angefasst.
-const CACHE = 'potty-quest-v5';
+const CACHE = 'potty-quest-v8';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/app.css',

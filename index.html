@@ -127,11 +127,15 @@
         <button class="btn secondary" id="export-csv">CSV exportieren</button>
         <button class="btn secondary" id="export-json">Backup (JSON)</button>
       </div>
-      <div class="btn-row">
+      <div class="btn-row" style="margin-bottom:10px">
         <button class="btn secondary" id="import-btn">CSV importieren</button>
+        <button class="btn secondary" id="import-json-btn">JSON importieren</button>
+      </div>
+      <div class="btn-row">
         <button class="btn secondary" id="demo-btn">Demo-Daten</button>
       </div>
-      <input type="file" id="import-file" accept=".csv,text/csv,.json" class="hidden">
+      <input type="file" id="import-file" accept=".csv,text/csv,.json,application/json" class="hidden">
+      <input type="file" id="import-json-file" accept=".json,application/json" class="hidden">
       <div id="import-box" class="hidden" style="margin-top:16px"></div>
       <div style="margin-top:16px"><button class="btn danger" id="wipe-btn">Alle Daten löschen</button></div>
       <p class="mini" id="data-summary" style="margin-top:12px"></p>
