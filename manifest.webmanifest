@@ -1,0 +1,17 @@
+{
+  "name": "Potty Quest – Töpfchen-Tracker",
+  "short_name": "Potty Quest",
+  "description": "Töpfchen-Ereignisse erfassen, Muster erkennen, evidenzbasierte Hinweise bekommen. Alle Daten bleiben auf dem Gerät.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8e7",
+  "theme_color": "#ffc93c",
+  "lang": "de",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

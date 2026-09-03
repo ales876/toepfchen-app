@@ -1,0 +1,841 @@
+// AUTO-GENERIERT aus docs/rules.seed.json - nicht direkt editieren.
+// Regeln sind reine Daten; siehe docs/regel-engine.md.
+export const RULESET = {
+  "version": 1,
+  "schemaNote": "Regeln sind reine Daten. Die Engine berechnet erst Features (siehe regel-engine.md), dann wertet sie 'when' gegen den Feature-Store aus. Neue Regel = neues Objekt hier, kein Code-Change.",
+  "config": {
+    "minTrackedDays": 5,
+    "minEventsPerDayForDensity": 3,
+    "hotspotWindowMinutes": 60,
+    "hotspotMinDays": 3,
+    "hotspotMinAccidents": 2,
+    "preventiveLeadMinutes": 20,
+    "postIntakeWindowMinutes": 45,
+    "postIntakeOfferMinutes": 20,
+    "targetVoidIntervalMinutes": 150,
+    "highVoidFrequencyPerDay": 8,
+    "lowVoidFrequencyPerDay": 3,
+    "longGapHours": 7,
+    "nightStartHour": 20,
+    "nightEndHour": 6,
+    "nightEventsMin14d": 3,
+    "goodDaySuccessRate": 0.8,
+    "initiativeTrendMinDelta": 0.1,
+    "regressionDropPoints": 0.25,
+    "regressionMinDays": 3,
+    "stableDryDaysBeforeRegression": 14,
+    "stoolGapDays": 3,
+    "noWarningShareMin": 0.5,
+    "streakMilestones": [
+      5,
+      10,
+      25,
+      50
+    ],
+    "napDryDaysOf7": 5,
+    "cooldownDefaultDays": 7,
+    "maxActiveTips": 3
+  },
+  "noteKeywords": {
+    "intake": [
+      "getrunken",
+      "trinken",
+      "essen",
+      "gegessen",
+      "mahlzeit",
+      "saft",
+      "milch",
+      "frühstück",
+      "mittag",
+      "abendbrot"
+    ],
+    "holding": [
+      "tanz",
+      "hüpft",
+      "hockt",
+      "beine",
+      "kreuzt",
+      "hält",
+      "zappelt",
+      "presst"
+    ],
+    "pain": [
+      "schmerz",
+      "brennt",
+      "weint beim",
+      "aua",
+      "blut",
+      "fieber",
+      "krank"
+    ],
+    "hardStool": [
+      "hart",
+      "kugeln",
+      "presst",
+      "tut weh",
+      "schmerz"
+    ],
+    "distraction": [
+      "abgelenkt",
+      "spiel",
+      "gespielt",
+      "tv",
+      "draußen",
+      "besuch"
+    ],
+    "transition": [
+      "kita",
+      "urlaub",
+      "umzug",
+      "geschwister",
+      "reise",
+      "besuch",
+      "krank"
+    ],
+    "refusal": [
+      "will nicht",
+      "weigert",
+      "geweigert",
+      "nein",
+      "geschrien",
+      "gestraeubt",
+      "gesträubt",
+      "keine lust",
+      "weint",
+      "panik",
+      "angst"
+    ]
+  },
+  "rules": [
+    {
+      "id": "hotspot_window",
+      "title": "Unfall-Hotspot im Tagesverlauf",
+      "category": "prävention",
+      "severity": "attention",
+      "priority": 80,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 7
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "hotspot.accidentCount",
+            "op": ">=",
+            "value": {
+              "$config": "hotspotMinAccidents"
+            }
+          },
+          {
+            "feature": "hotspot.distinctDays",
+            "op": ">=",
+            "value": {
+              "$config": "hotspotMinDays"
+            }
+          }
+        ]
+      },
+      "text": {
+        "headline": "Immer wieder gegen {{hotspot.timeLabel}}",
+        "body": "In den letzten 14 Tagen gab es an {{hotspot.distinctDays}} Tagen rund um {{hotspot.timeLabel}} einen Unfall. Das sieht nach einem festen Muster aus, nicht nach Zufall.",
+        "action": "Leg einen Präventiv-Slot etwa {{config.preventiveLeadMinutes}} Minuten davor – also gegen {{hotspot.offerTimeLabel}}. Kurz anbieten, max. 5–10 Minuten sitzen, ohne Drängeln."
+      },
+      "evidence": {
+        "ref": [
+          "E11",
+          "E6"
+        ],
+        "confidence": "mittel",
+        "note": "Rhythmus/Timing statt Warten auf das Kindsignal; Sitzdauer max. 5–10 Min."
+      }
+    },
+    {
+      "id": "post_intake_cluster",
+      "title": "Unfälle kurz nach Essen/Trinken",
+      "category": "prävention",
+      "severity": "attention",
+      "priority": 75,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 7,
+        "minMatchingEvents": 3
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "postIntake.accidentCount",
+            "op": ">=",
+            "value": 3
+          },
+          {
+            "feature": "postIntake.share",
+            "op": ">=",
+            "value": 0.4
+          }
+        ]
+      },
+      "text": {
+        "headline": "Nach dem Essen wird's eng",
+        "body": "{{postIntake.percentLabel}} der Unfälle passierten innerhalb von {{config.postIntakeWindowMinutes}} Minuten nach Essen oder Trinken.",
+        "action": "Biete das Töpfchen aktiv ca. {{config.postIntakeOfferMinutes}} Minuten nach jeder Mahlzeit an – der Darm-Reflex nach dem Essen arbeitet für euch."
+      },
+      "evidence": {
+        "ref": [
+          "E11"
+        ],
+        "confidence": "mittel",
+        "note": "Gastrokolischer Reflex; Angebot nach Mahlzeiten ist Standardempfehlung."
+      }
+    },
+    {
+      "id": "no_warning_low_awareness",
+      "title": "Unfälle ohne Vorwarnung – Wahrnehmung noch unreif",
+      "category": "einordnung",
+      "severity": "info",
+      "priority": 70,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 7,
+        "minMatchingEvents": 4
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "noWarning.share",
+            "op": ">=",
+            "value": {
+              "$config": "noWarningShareMin"
+            }
+          },
+          {
+            "feature": "voidFrequency.median",
+            "op": "<",
+            "value": {
+              "$config": "highVoidFrequencyPerDay"
+            }
+          },
+          {
+            "feature": "holdingManeuvers.count14d",
+            "op": "<",
+            "value": 3
+          }
+        ]
+      },
+      "text": {
+        "headline": "Kommt oft ohne Ankündigung",
+        "body": "{{noWarning.percentLabel}} der Unfälle passierten ohne vorherige Meldung. Das ist in dieser Phase normal: Der Drang wird erst spät bewusst – besonders im vertieften Spiel und später am Tag, wenn die Konzentration nachlässt.",
+        "action": "Nicht auf das Signal des Kindes warten, sondern nach der Uhr anbieten (ca. alle {{config.targetVoidIntervalMinutes}} Minuten) und beim Wechsel zwischen Aktivitäten. Danach gemeinsam benennen, wie sich „voll“ anfühlt."
+      },
+      "evidence": {
+        "ref": [
+          "E5",
+          "E6"
+        ],
+        "confidence": "mittel"
+      }
+    },
+    {
+      "id": "urgency_pattern",
+      "title": "Plötzlicher Drang + hohe Frequenz",
+      "category": "red_flag",
+      "severity": "medical",
+      "priority": 90,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 10,
+        "minEventsPerDay": 3
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "voidFrequency.median",
+            "op": ">=",
+            "value": {
+              "$config": "highVoidFrequencyPerDay"
+            }
+          },
+          {
+            "any": [
+              {
+                "feature": "holdingManeuvers.count14d",
+                "op": ">=",
+                "value": 3
+              },
+              {
+                "feature": "noWarning.share",
+                "op": ">=",
+                "value": 0.6
+              }
+            ]
+          }
+        ]
+      },
+      "text": {
+        "headline": "Sehr häufig und sehr plötzlich",
+        "body": "Im Schnitt {{voidFrequency.medianLabel}} Gänge pro Tag, dazu häufig plötzlicher Drang oder Haltemanöver (Beine kreuzen, hocken, „Pipi-Tanz“). Ab etwa 8 Gängen am Tag spricht man von erhöhter Frequenz – sofern alle Gänge erfasst sind.",
+        "action": "Haltemanöver nicht loben, sondern direkt zum Töpfchen gehen. Wenn das Muster über 1–2 Wochen bleibt: beim nächsten Kinderarzt-Termin ansprechen – dafür kannst du den CSV-Export mitnehmen."
+      },
+      "evidence": {
+        "ref": [
+          "E5",
+          "E6"
+        ],
+        "confidence": "hoch",
+        "note": "ICCS: ≥8 Miktionen/Tag = erhöhte Frequenz; Haltemanöver sollen vermieden werden."
+      },
+      "disclaimer": true
+    },
+    {
+      "id": "low_frequency_retention",
+      "title": "Sehr selten oder sehr lange Lücken",
+      "category": "red_flag",
+      "severity": "medical",
+      "priority": 88,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 10,
+        "minEventsPerDay": 2
+      },
+      "when": {
+        "any": [
+          {
+            "feature": "voidFrequency.median",
+            "op": "<=",
+            "value": {
+              "$config": "lowVoidFrequencyPerDay"
+            }
+          },
+          {
+            "feature": "gaps.maxDaytimeHours",
+            "op": ">=",
+            "value": {
+              "$config": "longGapHours"
+            }
+          }
+        ]
+      },
+      "text": {
+        "headline": "Lange Pausen zwischen den Gängen",
+        "body": "Die Abstände sind auffällig lang ({{gaps.maxDaytimeLabel}} am Stück) bzw. es kommen nur wenige Gänge pro Tag zusammen – vorausgesetzt, wirklich jeder Gang landet in der App. Manche Kinder halten ein, das kann Restharn und später Unfälle begünstigen.",
+        "action": "Regelmäßig anbieten (alle 2–3 Stunden), auch wenn kein Drang gemeldet wird, und aufs Pressen achten. Bleibt es dabei: mit dem Kinderarzt besprechen."
+      },
+      "evidence": {
+        "ref": [
+          "E5",
+          "E6"
+        ],
+        "confidence": "mittel",
+        "note": "≤3 Miktionen/Tag bzw. >6–8 h ohne Miktion gelten als Hinweis auf unteraktive Blase."
+      },
+      "disclaimer": true
+    },
+    {
+      "id": "night_wetting_despite_good_days",
+      "title": "Pipi im Schlaf trotz guter Tagesquote",
+      "category": "einordnung",
+      "severity": "info",
+      "priority": 65,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 10
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "night.eventCount14d",
+            "op": ">=",
+            "value": {
+              "$config": "nightEventsMin14d"
+            }
+          },
+          {
+            "feature": "daytime.successRate14d",
+            "op": ">=",
+            "value": {
+              "$config": "goodDaySuccessRate"
+            }
+          },
+          {
+            "feature": "child.ageMonths",
+            "op": "<",
+            "value": 60
+          }
+        ]
+      },
+      "text": {
+        "headline": "Nachts ist eine eigene Baustelle",
+        "body": "Tagsüber läuft es stabil ({{daytime.successPercentLabel}}), nachts gab es {{night.eventCount14d}} Ereignisse. Das ist kein Rückschritt: Nachttrockenheit hängt am Hormonrhythmus (Vasopressin), an der Blasenkapazität und daran, ob das Kind vom vollen-Blase-Signal überhaupt aufwacht – das lässt sich nicht antrainieren. Rund 40 % der Kinder sind nachts noch nass, wenn tagsüber längst alles klappt.",
+        "action": "Nachts weiter Windel oder Höschenwindel – das ist keine Niederlage, sondern spart Wäsche und Nachtstress. Nasse Nächte nicht kommentieren, trockene beiläufig loben."
+      },
+      "evidence": {
+        "ref": [
+          "E4",
+          "E1"
+        ],
+        "confidence": "hoch"
+      },
+      "disclaimer": true
+    },
+    {
+      "id": "night_wetting_age5",
+      "title": "Einnässen im Schlaf ab 5 Jahren",
+      "category": "red_flag",
+      "severity": "medical",
+      "priority": 85,
+      "window": {
+        "days": 90
+      },
+      "requires": {
+        "minTrackedDays": 30
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "child.ageMonths",
+            "op": ">=",
+            "value": 60
+          },
+          {
+            "feature": "night.monthsWithEventIn90d",
+            "op": ">=",
+            "value": 3
+          }
+        ]
+      },
+      "text": {
+        "headline": "Zeit, das mal anzusprechen",
+        "body": "Ab dem 5. Geburtstag gilt nächtliches Einnässen von mindestens einmal im Monat über drei Monate als Enuresis nocturna – das ist häufig (ca. 10 % der Siebenjährigen) und gut behandelbar.",
+        "action": "Beim Kinderarzt ansprechen. Der CSV-Export aus der App ist dafür eine brauchbare Grundlage."
+      },
+      "evidence": {
+        "ref": [
+          "E4"
+        ],
+        "confidence": "hoch",
+        "note": "AWMF S2k 028-026: Abklärung ab 5. Lebensjahr."
+      },
+      "disclaimer": true
+    },
+    {
+      "id": "stool_gap",
+      "title": "Verstopfung als versteckter Treiber",
+      "category": "prävention",
+      "severity": "attention",
+      "priority": 95,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 7
+      },
+      "when": {
+        "any": [
+          {
+            "feature": "stool.maxGapDays",
+            "op": ">=",
+            "value": {
+              "$config": "stoolGapDays"
+            }
+          },
+          {
+            "all": [
+              {
+                "feature": "stool.hardStoolNotes14d",
+                "op": ">=",
+                "value": 2
+              },
+              {
+                "feature": "accidents.trendSlopePerWeek",
+                "op": ">",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "text": {
+        "headline": "Blick auf den Stuhlgang lohnt sich",
+        "body": "Es gab eine Lücke von {{stool.maxGapDays}} Tagen ohne Kaka (bzw. Notizen über harten Stuhl), während die Pipi-Unfälle zunehmen. Beides hängt öfter zusammen, als man denkt: Bis zu 80 % der Kinder mit Blasenproblemen sind gleichzeitig verstopft – der gemeinsame Beckenboden spannt mit an.",
+        "action": "Erst den Stuhlgang entspannen (Trinken, Ballaststoffe, feste Kaka-Zeit nach dem Essen, Fußbank für die Hocke), bevor ihr am Pipi-Training schraubt. Bei hartem oder schmerzhaftem Stuhl: Kinderarzt."
+      },
+      "evidence": {
+        "ref": [
+          "E7"
+        ],
+        "confidence": "hoch"
+      },
+      "disclaimer": true
+    },
+    {
+      "id": "stool_toileting_refusal",
+      "title": "Kaka nur in die Hose/Windel",
+      "category": "technik",
+      "severity": "info",
+      "priority": 72,
+      "window": {
+        "days": 21
+      },
+      "requires": {
+        "minTrackedDays": 14,
+        "minMatchingEvents": 4
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "stool.pottyShare21d",
+            "op": "<=",
+            "value": 0.2
+          },
+          {
+            "feature": "pee.successRate21d",
+            "op": ">=",
+            "value": 0.6
+          },
+          {
+            "feature": "stool.eventCount21d",
+            "op": ">=",
+            "value": 4
+          }
+        ]
+      },
+      "text": {
+        "headline": "Pipi ja, Kaka nein",
+        "body": "Pipi klappt gut, Kaka landet fast immer woanders. Das betrifft rund 20 % der Kinder und hat meist mit Schmerz, Angst oder schlicht Gewohnheit zu tun – nicht mit Trotz.",
+        "action": "Druck komplett rausnehmen: Kaka in der Windel ist erlaubt, negativ besetzte Wörter vermeiden, ruhige feste Zeit anbieten. Wenn es sich verhärtet, das Thema für ein paar Wochen ganz ruhen lassen."
+      },
+      "evidence": {
+        "ref": [
+          "E8",
+          "E10",
+          "E11"
+        ],
+        "confidence": "mittel"
+      }
+    },
+    {
+      "id": "regression_drop",
+      "title": "Plötzlicher Rückschritt",
+      "category": "einordnung",
+      "severity": "attention",
+      "priority": 82,
+      "window": {
+        "days": 21
+      },
+      "requires": {
+        "minTrackedDays": 14
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "successRate.dropVsBaseline",
+            "op": ">=",
+            "value": {
+              "$config": "regressionDropPoints"
+            }
+          },
+          {
+            "feature": "successRate.dropDurationDays",
+            "op": ">=",
+            "value": {
+              "$config": "regressionMinDays"
+            }
+          },
+          {
+            "feature": "baseline.stableDryDays",
+            "op": ">=",
+            "value": {
+              "$config": "stableDryDaysBeforeRegression"
+            }
+          }
+        ]
+      },
+      "text": {
+        "headline": "Gerade läuft es rückwärts – meistens hat das einen Grund",
+        "body": "Die Quote ist seit {{successRate.dropDurationDays}} Tagen um {{successRate.dropPercentLabel}} gefallen, nachdem es vorher stabil war. Typische Auslöser: Infekt, Kita-Start, Reise, Geschwisterkind, allgemeiner Stress.",
+        "action": "Kurz zurück zu mehr Rhythmus und mehr Nähe, keine neuen Anforderungen. Wichtig: nicht schimpfen – Ärger und Strafe verlängern solche Phasen nachweislich. Wenn Schmerzen, Brennen, Fieber oder Blut dazukommen: Kinderarzt (Harnwegsinfekt)."
+      },
+      "evidence": {
+        "ref": [
+          "E9",
+          "E10"
+        ],
+        "confidence": "hoch"
+      },
+      "disclaimer": true
+    },
+    {
+      "id": "pain_notes_red_flag",
+      "title": "Schmerz-Hinweise in den Notizen",
+      "category": "red_flag",
+      "severity": "medical",
+      "priority": 99,
+      "window": {
+        "days": 7
+      },
+      "requires": {},
+      "when": {
+        "all": [
+          {
+            "feature": "notes.painMatches7d",
+            "op": ">=",
+            "value": 2
+          }
+        ]
+      },
+      "text": {
+        "headline": "Bitte einmal abklären lassen",
+        "body": "In den Notizen tauchen mehrfach Hinweise auf Schmerzen, Brennen, Blut oder Fieber auf.",
+        "action": "Das gehört zum Kinderarzt – ein Harnwegsinfekt ist häufig, leicht zu testen und erklärt plötzliche Rückschritte."
+      },
+      "evidence": {
+        "ref": [
+          "E9"
+        ],
+        "confidence": "hoch"
+      },
+      "disclaimer": true
+    },
+    {
+      "id": "interval_stabilizing",
+      "title": "Blasenkontrolle entwickelt sich",
+      "category": "lob",
+      "severity": "celebrate",
+      "priority": 40,
+      "window": {
+        "days": 14
+      },
+      "requires": {
+        "minTrackedDays": 10,
+        "minEventsPerDay": 3
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "intervals.medianMinutes",
+            "op": ">=",
+            "value": 90
+          },
+          {
+            "feature": "intervals.iqrTrendPerWeek",
+            "op": "<",
+            "value": 0
+          }
+        ]
+      },
+      "text": {
+        "headline": "Die Blase wird zuverlässiger",
+        "body": "Der typische Abstand liegt bei {{intervals.medianLabel}}, und die Streuung wird kleiner. Genau das ist das Zeichen für einsetzende Kontrolle – gleichmäßiger ist wichtiger als länger.",
+        "action": "Weiter so. Ihr könnt das Angebots-Intervall vorsichtig an den Median anpassen."
+      },
+      "evidence": {
+        "ref": [
+          "E1",
+          "E6"
+        ],
+        "confidence": "mittel"
+      }
+    },
+    {
+      "id": "initiative_trend_up",
+      "title": "Eigeninitiative steigt",
+      "category": "lob",
+      "severity": "celebrate",
+      "priority": 45,
+      "window": {
+        "days": 21
+      },
+      "requires": {
+        "minTrackedDays": 14
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "initiative.selfShareDelta21d",
+            "op": ">=",
+            "value": {
+              "$config": "initiativeTrendMinDelta"
+            }
+          }
+        ]
+      },
+      "text": {
+        "headline": "Immer öfter von allein",
+        "body": "Der Anteil selbst initiierter Gänge ist um {{initiative.deltaPercentLabel}} gestiegen – das ist die aussagekräftigste Fortschrittskurve überhaupt, wichtiger als die reine Trefferquote.",
+        "action": "Feiern und weiter Raum lassen: erst warten, dann fragen, erst zuletzt ansagen."
+      },
+      "evidence": {
+        "ref": [
+          "E2",
+          "E3"
+        ],
+        "confidence": "mittel"
+      }
+    },
+    {
+      "id": "nap_dry_streak",
+      "title": "Trocken nach dem Mittagsschlaf",
+      "category": "lob",
+      "severity": "celebrate",
+      "priority": 50,
+      "window": {
+        "days": 7
+      },
+      "requires": {
+        "minTrackedDays": 7
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "nap.enabled",
+            "op": "==",
+            "value": true
+          },
+          {
+            "feature": "nap.dryDaysOf7",
+            "op": ">=",
+            "value": {
+              "$config": "napDryDaysOf7"
+            }
+          }
+        ]
+      },
+      "text": {
+        "headline": "Ein echtes Reifezeichen",
+        "body": "{{nap.dryDaysOf7}} von 7 Mittagsschläfen trocken. Trockenbleiben über den Schlaf gilt als eines der verlässlichsten Zeichen für körperliche Reife.",
+        "action": "Guter Zeitpunkt, tagsüber weniger anzusagen und mehr abzuwarten."
+      },
+      "evidence": {
+        "ref": [
+          "E3"
+        ],
+        "confidence": "mittel"
+      }
+    },
+    {
+      "id": "prompt_dependency",
+      "title": "Viel Ansage, wenig Eigeninitiative",
+      "category": "technik",
+      "severity": "info",
+      "priority": 55,
+      "window": {
+        "days": 21
+      },
+      "requires": {
+        "minTrackedDays": 14,
+        "minMatchingEvents": 15
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "initiative.promptedShare21d",
+            "op": ">=",
+            "value": 0.7
+          },
+          {
+            "feature": "initiative.selfShareDelta21d",
+            "op": "<=",
+            "value": 0
+          }
+        ]
+      },
+      "text": {
+        "headline": "Fast alles läuft über Ansage",
+        "body": "{{initiative.promptedPercentLabel}} der Gänge passieren auf Ansage, und der Eigenanteil wächst gerade nicht. Die Trefferquote sieht dadurch besser aus, als die Selbstständigkeit tatsächlich ist.",
+        "action": "Ansage schrittweise zur Frage abschwächen („Musst du?“ statt „Wir gehen jetzt“), und in sicheren Zeitfenstern bewusst nichts sagen."
+      },
+      "evidence": {
+        "ref": [
+          "E2",
+          "E3"
+        ],
+        "confidence": "niedrig",
+        "note": "Plausibilitätsheuristik aus dem kindorientierten Ansatz, keine harte Studienlage."
+      }
+    },
+    {
+      "id": "pause_suggestion",
+      "title": "Pause empfehlen",
+      "category": "technik",
+      "severity": "info",
+      "priority": 78,
+      "window": {
+        "days": 10
+      },
+      "requires": {
+        "minTrackedDays": 7
+      },
+      "when": {
+        "all": [
+          {
+            "feature": "successRate.last7d",
+            "op": "<=",
+            "value": 0.3
+          },
+          {
+            "feature": "refusal.notes10d",
+            "op": ">=",
+            "value": 3
+          }
+        ]
+      },
+      "text": {
+        "headline": "Vielleicht ist gerade nicht der Moment",
+        "body": "Wenig Erfolge und wiederholter Widerstand über mehrere Tage. Wenn Töpfchen zum Machtkampf wird, kippt der Fortschritt regelmäßig ins Gegenteil.",
+        "action": "Für ein paar Wochen bewusst pausieren und ohne Erwartung neu anfangen. Das ist die ausdrücklich empfohlene Strategie – kein Rückschritt."
+      },
+      "evidence": {
+        "ref": [
+          "E10",
+          "E11",
+          "E8"
+        ],
+        "confidence": "hoch"
+      }
+    },
+    {
+      "id": "streak_milestone",
+      "title": "Serien-Meilenstein",
+      "category": "lob",
+      "severity": "celebrate",
+      "priority": 30,
+      "window": {
+        "days": 30
+      },
+      "requires": {},
+      "when": {
+        "all": [
+          {
+            "feature": "streak.currentHitsMilestone",
+            "op": "==",
+            "value": true
+          }
+        ]
+      },
+      "text": {
+        "headline": "{{streak.current}} erfolgreiche Gänge in Folge!",
+        "body": "Konfetti verdient.",
+        "action": ""
+      },
+      "evidence": {
+        "ref": [
+          "E2",
+          "E10"
+        ],
+        "confidence": "mittel",
+        "note": "Positive Verstärkung; Serienabbruch wird bewusst NICHT kommentiert."
+      }
+    }
+  ]
+};
