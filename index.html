@@ -5,16 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffc93c">
 <title>Potty Quest</title>
-<link rel="manifest" href="manifest.webmanifest?v=2">
-<link rel="icon" href="icons/icon.svg?v=2" type="image/svg+xml">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <!-- iOS wertet das Manifest nur teilweise aus: ohne diese Tags oeffnet das
-     Homescreen-Symbol die Seite in Safari statt als App, und das Icon wird
-     aus dem Safari-Cache statt neu geladen. -->
+     Homescreen-Symbol die Seite in Safari statt als App.
+     Das apple-touch-icon liegt bewusst im Wurzelverzeichnis und OHNE
+     Query-String: Safari ignoriert apple-touch-icons mit "?v=..." und faellt
+     dann auf ein Favicon zurueck, das es in eine weisse Box einpasst. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Potty Quest">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon-precomposed" sizes="180x180" href="apple-touch-icon-precomposed.png">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>

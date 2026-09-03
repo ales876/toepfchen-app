@@ -1,6 +1,6 @@
 // Offline-First: die App ist ein fester Satz Dateien, also Cache-First mit
 // Versions-Bump beim Deploy. Daten liegen in IndexedDB und werden hier nie angefasst.
-const CACHE = 'potty-quest-v11';
+const CACHE = 'potty-quest-v12';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/app.css',
@@ -8,6 +8,7 @@ const ASSETS = [
   './js/engine.js', './js/rules.data.js', './js/evidence.data.js', './js/charts.js',
   './js/mascot.js', './js/confetti.js', './js/csv.js', './js/icons.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png',
+  './apple-touch-icon.png', './apple-touch-icon-precomposed.png',
 ];
 
 self.addEventListener('install', (e) => {
@@ -29,7 +30,7 @@ self.addEventListener('fetch', (e) => {
   // Icons und Manifest immer vom Netz holen, sonst haelt ein Geraet das alte
   // App-Symbol fest, auch wenn laengst ein neues deployt ist.
   const path = new URL(e.request.url).pathname;
-  if (path.includes('/icons/') || path.endsWith('.webmanifest')) {
+  if (path.includes('/icons/') || path.includes('apple-touch-icon') || path.endsWith('.webmanifest')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
