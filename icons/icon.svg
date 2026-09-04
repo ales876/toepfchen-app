@@ -2,7 +2,7 @@
   <!-- Randlos: iOS und Android maskieren App-Icons selbst.
        Die Gruppe skaliert das Motiv leicht herunter, damit auch der Griff
        innerhalb der maskable Safe Zone (innere 80 %) bleibt. -->
-  <rect x="0" y="0" width="192" height="192" fill="#ffc93c"/>
+  <rect x="0" y="0" width="192" height="192" fill="#ff8787"/>
   <g transform="translate(96,100) scale(0.86) translate(-96,-100)">
     <path d="M34 104 h124 v16 a62 34 0 0 1 -124 0 Z" fill="#4dabf7" stroke="#22223b" stroke-width="8" stroke-linejoin="round"/>
     <ellipse cx="96" cy="104" rx="62" ry="17" fill="#a5d8ff" stroke="#22223b" stroke-width="8"/>
