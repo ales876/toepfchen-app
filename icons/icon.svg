@@ -1,18 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <!-- Vollflaechiger Hintergrund: App-Icons werden von iOS und Android selbst
-       maskiert, eigene runde Ecken wuerden doppelt gerundet aussehen.
-       Das Motiv bleibt in der inneren Safe Zone (80 %), damit beim Maskieren
-       nichts abgeschnitten wird. -->
-  <rect x="0" y="0" width="192" height="192" fill="#4dabf7"/>
-  <circle cx="40" cy="44" r="7" fill="#ffffff" opacity="0.5"/>
-  <circle cx="156" cy="58" r="5" fill="#ffffff" opacity="0.4"/>
-  <path d="M96 50 q-7 -20 11 -23 q-8 12 2 20" fill="#ffd43b" stroke="#22223b" stroke-width="7" stroke-linejoin="round"/>
-  <circle cx="96" cy="106" r="54" fill="#ffe066" stroke="#22223b" stroke-width="7"/>
-  <circle cx="77" cy="98" r="10" fill="#22223b"/>
-  <circle cx="115" cy="98" r="10" fill="#22223b"/>
-  <circle cx="81" cy="94" r="3.6" fill="#ffffff"/>
-  <circle cx="119" cy="94" r="3.6" fill="#ffffff"/>
-  <path d="M76 122 q20 -6 40 0 q-8 18 -20 18 q-12 0 -20 -18 Z" fill="#ff9f43" stroke="#22223b" stroke-width="6" stroke-linejoin="round"/>
-  <ellipse cx="57" cy="120" rx="9" ry="6.5" fill="#ff8787" opacity="0.55"/>
-  <ellipse cx="135" cy="120" rx="9" ry="6.5" fill="#ff8787" opacity="0.55"/>
+  <!-- Randlos: iOS und Android maskieren App-Icons selbst.
+       Die Gruppe skaliert das Motiv leicht herunter, damit auch der Griff
+       innerhalb der maskable Safe Zone (innere 80 %) bleibt. -->
+  <rect x="0" y="0" width="192" height="192" fill="#ffc93c"/>
+  <g transform="translate(96,100) scale(0.86) translate(-96,-100)">
+    <path d="M34 104 h124 v16 a62 34 0 0 1 -124 0 Z" fill="#4dabf7" stroke="#22223b" stroke-width="8" stroke-linejoin="round"/>
+    <ellipse cx="96" cy="104" rx="62" ry="17" fill="#a5d8ff" stroke="#22223b" stroke-width="8"/>
+    <path d="M158 114 a19 19 0 0 1 15 19" fill="none" stroke="#22223b" stroke-width="8" stroke-linecap="round"/>
+    <path d="M96 22 l9 19 21 3 -15 15 4 21 -19 -11 -19 11 4 -21 -15 -15 21 -3 Z" fill="#ffe066" stroke="#22223b" stroke-width="7" stroke-linejoin="round"/>
+  </g>
 </svg>
