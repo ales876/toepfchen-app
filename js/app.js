@@ -365,10 +365,10 @@ function download(filename, content, type) {
 }
 
 el('export-csv').addEventListener('click', () =>
-  download(`potty-quest-${dayKey(Date.now())}.csv`, toCSV(state.events), 'text/csv;charset=utf-8')
+  download(`potquest-${dayKey(Date.now())}.csv`, toCSV(state.events), 'text/csv;charset=utf-8')
 );
 el('export-json').addEventListener('click', () =>
-  download(`potty-quest-backup-${dayKey(Date.now())}.json`, toJSON(state.events, state.settings), 'application/json')
+  download(`potquest-backup-${dayKey(Date.now())}.json`, toJSON(state.events, state.settings), 'application/json')
 );
 el('import-btn').addEventListener('click', () => el('import-file').click());
 el('import-json-btn').addEventListener('click', () => el('import-json-file').click());

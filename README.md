@@ -1,4 +1,4 @@
-# Potty Quest
+# PotQuest
 
 Töpfchen-Tracker als installierbare Offline-PWA. Erfassen in zwei bis vier Taps,
 verspielte Auswertung, und ein Tipp-System, das erkannte Muster gegen Schwellenwerte

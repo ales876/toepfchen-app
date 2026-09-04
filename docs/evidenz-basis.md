@@ -1,4 +1,4 @@
-# Evidenz-Basis für das Tipp-System ("Potty Quest")
+# Evidenz-Basis für das Tipp-System ("PotQuest")
 
 Stand der Recherche: 2026-09-03. Alle Aussagen stammen aus Fachliteratur/Leitlinien (Quellen unten).
 Dieses Dokument ist die **fachliche Grundlage** für `rules.seed.json` – jede Regel dort referenziert

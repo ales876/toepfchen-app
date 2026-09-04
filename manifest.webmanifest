@@ -1,6 +1,6 @@
 {
-  "name": "Potty Quest – Töpfchen-Tracker",
-  "short_name": "Potty Quest",
+  "name": "PotQuest – Töpfchen-Tracker",
+  "short_name": "PotQuest",
   "description": "Töpfchen-Ereignisse erfassen, Muster erkennen, evidenzbasierte Hinweise bekommen. Alle Daten bleiben auf dem Gerät.",
   "start_url": ".",
   "scope": ".",
