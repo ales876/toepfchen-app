@@ -70,6 +70,8 @@ body {
   padding: 14px; margin-bottom: 16px;
 }
 .card h2 { margin: 0 0 4px; font-size: 1.05rem; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+select.inline { width: auto; font-size: .8rem; padding: 6px 10px; border-radius: 12px; box-shadow: var(--shadow-sm); }
 .card .hint { margin: 0 0 10px; font-size: .8rem; color: var(--muted); font-weight: 700; }
 
 /* --- Auswahl-Buttons --- */

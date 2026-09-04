@@ -62,5 +62,6 @@ export const DEFAULT_SETTINGS = {
   nightStartHour: 20,
   nightEndHour: 6,
   tipsEnabled: true,
+  statsWindow: 14, // Zeitraum der Erfolgsquote in Tagen (7 oder 14)
   configOverrides: {},
 };

@@ -81,7 +81,13 @@
   <!-- AUSWERTUNG -->
   <section id="view-stats" class="hidden">
     <div class="card">
-      <h2>Kennzahlen</h2>
+      <div class="card-head">
+        <h2>Kennzahlen</h2>
+        <select id="stats-window" class="inline" aria-label="Zeitraum der Erfolgsquote">
+          <option value="7">7 Tage</option>
+          <option value="14">14 Tage</option>
+        </select>
+      </div>
       <p class="hint">Nacht- und Schlafereignisse zählen bewusst nicht in die Tagesquote.</p>
       <div class="kpis" id="kpis"></div>
     </div>

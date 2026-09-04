@@ -193,8 +193,12 @@ const escapeHtml = (s) => String(s).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>
 function renderStats() {
   const f = state.computed.features;
   const s = state.computed.series;
+  // 7 oder 14 Tage - beide Werte liegen im FeatureStore schon vor.
+  const win = Number(state.settings.statsWindow) === 7 ? 7 : 14;
+  const rate = win === 7 ? f['successRate.last7d'] : f['daytime.successRate14d'];
+  el('stats-window').value = String(win);
   el('kpis').innerHTML = [
-    ['Erfolgsquote 14 Tage', percentLabel(f['daytime.successRate14d'])],
+    [`Erfolgsquote ${win} Tage`, percentLabel(rate)],
     ['Alleine gegangen', percentLabel(f['initiative.selfShare21d'])],
     ['Typischer Abstand', f['intervals.medianLabel']],
     ['Gänge pro Tag', String(Math.round(f['voidFrequency.median']))],
@@ -309,6 +313,12 @@ el('toggle-details').addEventListener('click', () => {
 el('save-event').addEventListener('click', saveEvent);
 
 // --------------------------------------------------------------- Einstellungen
+el('stats-window').addEventListener('change', async (e) => {
+  state.settings = { ...state.settings, statsWindow: Number(e.target.value) };
+  await db.setMeta('settings', state.settings);
+  renderStats();
+});
+
 el('save-settings').addEventListener('click', async () => {
   state.settings = {
     ...state.settings,
