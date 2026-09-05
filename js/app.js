@@ -6,6 +6,7 @@ import {
   dayKey, minutesOfDay, timeLabel, percentLabel, durationLabel,
 } from './model.js';
 import { computeFeatures, isSleepEvent } from './features.js';
+import { buildDayReports } from './dayreport.js';
 import { evaluateRules } from './engine.js';
 import { RULESET } from './rules.data.js';
 import { EVIDENCE } from './evidence.data.js';
@@ -169,13 +170,61 @@ async function refresh() {
     : 'Bereit, wenn du es bist.';
 }
 
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+function deltaChip(value) {
+  if (value === null || value === undefined) return '<span class="delta neutral">kein Vergleich</span>';
+  if (Math.abs(value) < 1) return '<span class="delta neutral">wie sonst</span>';
+  const up = value > 0;
+  return `<span class="delta ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} ${Math.abs(value)} Pkt.</span>`;
+}
+
+function renderDayReport() {
+  const reports = buildDayReports(state.events, state.settings, 4);
+  const today = reports[0];
+  const box = el('day-report');
+
+  if (!today.enough) {
+    box.innerHTML = `<p class="hint" style="margin:0">${
+      today.stats.events
+        ? `${plural(today.stats.events, 'Eintrag', 'Einträge')} heute – ab 5 gibt es eine Tagesbewertung.`
+        : 'Noch nichts erfasst heute.'
+    }</p>`;
+  } else {
+    const s = today.stats;
+    box.innerHTML = `
+      <div class="day-head"><span class="day-label">${today.label}</span></div>
+      <div class="day-metrics">
+        <div><div class="v">${today.ratePct} %</div><div class="k">Treffer</div>${deltaChip(today.rateDelta)}</div>
+        <div><div class="v">${today.autonomyPct} %</div><div class="k">Selbstständigkeit</div>${deltaChip(today.autonomyDelta)}</div>
+      </div>
+      <p class="day-line">${s.self}× alleine · ${s.onRequest}× auf Frage · ${s.onPrompt}× auf Ansage ·
+        ${plural(s.accidents, 'Unfall', 'Unfälle')}${s.accidentsNoticed ? ` (${s.accidentsNoticed} selbst bemerkt)` : ''}</p>
+      <p class="day-line mini">${plural(s.peeCount, 'Gang', 'Gänge')} · trocken am Stück ${today.dryLabel} ·
+        Kaka ${s.hasStool ? 'ja' : 'nein'} · nachts ${s.nightEvents}</p>
+      ${today.observations.map((o) => `<p class="day-note">${escapeHtml(o)}</p>`).join('')}`;
+  }
+
+  // Rueckblick: die drei Tage davor, damit man den Verlauf sieht statt nur den Ist-Stand.
+  const past = reports.slice(1).filter((r) => r.enough);
+  el('day-history').innerHTML = past.length
+    ? `<div class="label-row">Letzte Tage</div>` +
+      past
+        .map((r) => {
+          const d = new Date(r.key + 'T12:00:00');
+          const wd = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'][d.getDay()];
+          return `<div class="day-row"><span class="d">${wd} ${d.getDate()}.${d.getMonth() + 1}.</span>
+            <span class="p">${r.ratePct} %</span><span class="p sec">${r.autonomyPct} %</span>
+            <span class="l">${r.label}</span></div>`;
+        })
+        .join('')
+    : '';
+}
+
 function renderToday() {
   const today = dayKey(Date.now());
   const evs = state.events.filter((e) => dayKey(e.ts) === today).sort((a, b) => b.ts - a.ts);
-  const hits = evs.filter(isSuccess).length;
-  el('today-summary').textContent = evs.length
-    ? `${evs.length} Einträge · ${hits} im Töpfchen/WC · ${evs.length - hits} daneben`
-    : 'Noch nichts erfasst.';
+  renderDayReport();
   el('today-log').innerHTML = evs
     .map(
       (e) => `<li>

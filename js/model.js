@@ -17,9 +17,9 @@ export const WHERE = {
 
 export const INITIATIVE = {
   self: { label: 'Alleine', icon: 'star', tone: 'green', rank: 3 },
-  onRequest: { label: 'Nach Anfrage', icon: 'hand', tone: 'green', rank: 2 },
-  onPrompt: { label: 'Nach Ansage', icon: 'megaphone', tone: 'yellow', rank: 1 },
-  none: { label: 'Keine (Unfall)', icon: 'cloud', tone: 'red', rank: 0 },
+  onRequest: { label: 'Auf Frage', icon: 'hand', tone: 'green', rank: 2 },
+  onPrompt: { label: 'Auf Ansage', icon: 'megaphone', tone: 'yellow', rank: 1 },
+  none: { label: 'Unfall', icon: 'cloud', tone: 'red', rank: 0 },
 };
 
 export const isSuccess = (ev) => !!WHERE[ev.where]?.success;

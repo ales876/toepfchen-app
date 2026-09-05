@@ -56,6 +56,9 @@
 
       <div class="label-row">Initiative</div>
       <div class="choices cols-2" id="pick-initiative"></div>
+      <p class="legend"><b>Alleine</b> – sagt selbst Bescheid und macht es selbst ·
+        <b>Auf Frage</b> – „Musst du Pipi?“ ·
+        <b>Auf Ansage</b> – „Wir fahren gleich, geh nochmal“</p>
 
       <div class="meta-row">
         <label class="toggle"><input type="checkbox" id="during-sleep"> Im Schlaf</label>
@@ -73,7 +76,9 @@
 
     <div class="card">
       <h2>Heute</h2>
-      <p class="hint" id="today-summary">Noch nichts erfasst.</p>
+      <div id="day-report"></div>
+      <div id="day-history"></div>
+      <div class="label-row">Einträge</div>
       <ul class="log" id="today-log"></ul>
     </div>
   </section>

@@ -30,6 +30,7 @@ installieren – danach läuft alles offline.
 | `js/stats.js` | Wilson, Theil-Sen, Mann-Kendall, EWMA, zirkuläre KDE |
 | `js/features.js` | FeatureStore: Rohereignisse → Kennzahlen |
 | `js/engine.js` | Regel-Interpreter (Bool-Baum, Cooldowns, Priorisierung) |
+| `js/dayreport.js` | Tagesbewertung: Trefferquote, Selbstständigkeitsscore, Beobachtungen |
 | `js/rules.data.js` | generiert aus `docs/rules.seed.json` – **nicht direkt editieren** |
 | `js/charts.js` | SVG-Charts von Hand |
 | `js/icons.js`, `js/mascot.js`, `js/confetti.js` | Icon-Set, Maskottchen „Quaki“, Konfetti |
@@ -60,6 +61,20 @@ getrennt, damit die Mathematik ohne Browser testbar bleibt und die Regeln reine 
 
 Schwellenwerte stehen in `config` und lassen sich über `settings.configOverrides` pro Nutzer
 überschreiben, ohne die Regeln anzufassen.
+
+## Tagesbewertung
+
+Die „Heute“-Karte bewertet den laufenden Tag mit **zwei** Zahlen, weil eine allein in die Irre führt:
+
+- **Treffer** – ging es ins Töpfchen?
+- **Selbstständigkeit** – gewichtet nach Initiative (alleine 3, auf Frage 2, auf Ansage 1, Unfall 0),
+  geteilt durch das Maximum.
+
+Ein Tag mit 90 % Treffern, an dem acht von zehn Gängen auf Ansage liefen, ist entwicklungsmäßig
+schwächer als ein Tag mit 73 %, an dem sechsmal das Kind selbst Bescheid gab. Beide Zahlen werden
+gegen den eigenen 7-Tage-Schnitt gestellt, nicht gegen eine Norm. Unter fünf Einträgen gibt es
+keine Bewertung. Anders als in der Regel-Engine wird hier bewusst mit Rohquoten gerechnet: Ein
+einzelner Tag wird beschrieben, nicht auf die Zukunft geschlossen.
 
 ## Datenmodell
 

@@ -1,11 +1,11 @@
 // Offline-First: die App ist ein fester Satz Dateien, also Cache-First mit
 // Versions-Bump beim Deploy. Daten liegen in IndexedDB und werden hier nie angefasst.
-const CACHE = 'potquest-v17';
+const CACHE = 'potquest-v19';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/app.css',
   './js/app.js', './js/db.js', './js/model.js', './js/stats.js', './js/features.js',
-  './js/engine.js', './js/rules.data.js', './js/evidence.data.js', './js/charts.js',
+  './js/engine.js', './js/dayreport.js', './js/rules.data.js', './js/evidence.data.js', './js/charts.js',
   './js/mascot.js', './js/confetti.js', './js/csv.js', './js/icons.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png',
   './apple-touch-icon.png', './apple-touch-icon-precomposed.png',
